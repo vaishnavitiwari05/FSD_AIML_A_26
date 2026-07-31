@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Demo fetch in Js</title>
+  <style>
+    table {
+      width: 80%;
+      border-collapse: collapse;
+      background-color: #a9f1fa;
+      color: #1f169b;
+      border: 1px solid #460ac6;
+      margin: auto;
+      padding: 10px;
+    }
+    th, td {
+      border: 1px solid #460ac6;
+      padding: 8px;
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+  <table id="table">
+    <thead>
+      <tr>
+        <th>#</th>
+        <th>Title</th>
+        <th>QR Code</th>
+        <th>Image</th>
+        <th>Category</th>
+        <th>Price</th>
+        <th>Rating</th>
+        <th>Stock</th>
+      </tr>
+    </thead>
+    <tbody id="data"></tbody>
+  </table>
+
+  <script>
+    const ele = document.getElementById("data");
+    const URL = "https://dummyjson.com/products?limit=100";
+
+    async function loadProducts() {
+      try {
+        const res = await fetch(URL);
+        const data = await res.json();
+        console.log("Data =", data.products);
+
+        let rows = "";
+        data.products.forEach((item, index) => {
+          rows += `
+            <tr>
+              <td>${index + 1}</td>
+              <td>${item.title}</td>
+              <td><img src="https://api.qrserver.com/v1/create-qr-code/?data=${item.title}&size=100x100" alt="QR Code"></td>
+              <td><img src="${item.thumbnail}" alt="${item.title}" width="100"></td>
+              <td>${item.category}</td>
+              <td>₹${item.price}</td>
+              <td>${item.rating}</td>
+              <td>${item.stock}</td>
+            </tr>
+          `;
+        });
+
+        ele.innerHTML = rows;
+      } catch (err) {
+        console.log("Error", err);
+      }
+    }
+
+    loadProducts();
+  </script>
+</body>
+</html>
