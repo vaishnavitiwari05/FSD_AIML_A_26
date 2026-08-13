@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Branch-wise GitHub Profiles</title>
+  <style>
+    table { width: 90%; margin: auto; border-collapse: collapse; }
+    th, td { border: 1px solid #333; padding: 8px; text-align: center; }
+    img { width: 60px; border-radius: 50%; }
+  </style>
+</head>
+<body>
+  <h2 style="text-align:center;">Select Branch</h2>
+  <select id="branchSelect" onchange="loadStudents()">
+    <option value="">--Choose Branch--</option>
+    <option value="CSE">CSE</option>
+    <option value="IT">IT</option>
+    <option value="ECE">ECE</option>
+    <option value="CSE">CSE-AIML</option>
+    <option value="CSE">CSE-DS</option>
+  </select>
+
+  <table>
+    <thead>
+      <tr>
+        <th>Avatar</th>
+        <th>Name</th>
+        <th>Profile</th>
+        <th>Total Commits</th>
+        <th>Last Commit</th>
+      </tr>
+    </thead>
+    <tbody id="data"></tbody>
+  </table>
+
+<script>
+  
+  const students = {
+    "CSE": ["vaishnavitiwari05", "octocat"],
+    "IT": ["torvalds"],
+    "ECE": ["mojombo"],
+    "CSE-AIML": ["vghji", "octocat"],
+    "CSE-DS": ["vhjiug", "octocat"]
+  };
+
+  async function loadStudents() {
+    const branch = document.getElementById("branchSelect").value;
+    const tbody = document.getElementById("data");
+    tbody.innerHTML = "";
+
+    if (!branch) return;
+
+    for (const username of students[branch]) {
+      try {
+        // Get profile
+        const userRes = await fetch(`https://api.github.com/users/${username}`);
+        const user = await userRes.json();
+
+        // Get repos
+        const repoRes = await fetch(`https://api.github.com/users/${username}/repos`);
+        const repos = await repoRes.json();
+
+        let totalCommits = 0;
+        let lastCommit = "N/A";
+
+        if (repos.length > 0) {
+          // Take first repo for demo (you can loop all repos)
+          const repoName = repos[0].name;
+          const commitRes = await fetch(`https://api.github.com/repos/${username}/${repoName}/commits`);
+          const commits = await commitRes.json();
+
+          totalCommits = commits.length;
+          lastCommit = commits[0]?.commit?.message || "No commits";
+        }
+
+        tbody.innerHTML += `
+          <tr>
+            <td><img src="${user.avatar_url}" /></td>
+            <td>${user.login}</td>
+            <td><a href="${user.html_url}" target="_blank">Profile</a></td>
+            <td>${totalCommits}</td>
+            <td>${lastCommit}</td>
+          </tr>
+        `;
+      } catch (err) {
+        console.error("Error fetching data for", username, err);
+      }
+    }
+  }
+</script>
+</body>
+</html>
