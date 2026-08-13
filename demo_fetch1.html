@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>GitHub Profile Fetch</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f0f8f7;
+      color: #333;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+    }
+    .profile-card {
+      background-color: #93e6d8;
+      border: 2px solid #0a6038;
+      border-radius: 12px;
+      padding: 20px;
+      max-width: 400px;
+      text-align: center;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+    }
+    .profile-card img {
+      border-radius: 50%;
+      max-width: 120px;
+      margin-bottom: 15px;
+    }
+    .qr-code {
+      margin-top: 15px;
+    }
+    a {
+      color: #d220b7;
+      text-decoration: none;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+  <div class="profile-card" id="profile"></div>
+
+  <script>
+    const ele = document.getElementById("profile");
+    const URL = "https://api.github.com/users/vaishnavitiwari05"; 
+
+    async function loadProfile() {
+      try {
+        const res = await fetch(URL);
+        if (!res.ok) throw new Error(`HTTP error! Status: ${res.status}`);
+        const user = await res.json();
+
+        const qrURL = `https://api.qrserver.com/v1/create-qr-code/?size=120x120&data=${encodeURIComponent(user.html_url)}`;
+
+        ele.innerHTML = `
+          <img src="${user.avatar_url}" alt="Avatar">
+          <h2>${user.login}</h2>
+          <p><a href="${user.html_url}" target="_blank">Visit Profile</a></p>
+          <p><strong>Public Repos:</strong> ${user.public_repos}</p>
+          <p><strong>Followers:</strong> ${user.followers}</p>
+          <p><strong>Following:</strong> ${user.following}</p>
+          <div class="qr-code">
+            <img src="${qrURL}" alt="QR Code">
+          </div>
+        `;
+      } catch (err) {
+        console.error("Error fetching GitHub profile:", err);
+        ele.innerHTML = `<p>Failed to load profile data</p>`;
+      }
+    }
+
+    loadProfile();
+  </script>
+</body>
+</html>
